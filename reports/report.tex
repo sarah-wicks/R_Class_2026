@@ -1,0 +1,212 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Lab 3\_report.rmd},
+  pdfauthor={Sarah Wicks},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Lab 3\_report.rmd}
+\author{Sarah Wicks}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\subsection{Lab 3: Reproducible Research in
+R}\label{lab-3-reproducible-research-in-r}
+
+Checkpoint 4: How do we interpret this summary?
+
+The summary table for the ANOVA shows the degrees of freedom, summary of
+squares, mean of squares (variance), F value (ratio of between-group to
+within-group variance) and the p values associated with each comparison.
+None of the 3 p values generated meet the significance threshold (p =
+0.05), indicating that the difference between the means is not
+statistically significant. In this scenario, the effects of both
+population of origin and temperature treatment on the growth rate are
+not statistically significant.
+
+Checkpoint 5. What did we just do? Do you think this approach is easily
+editable and reproducible?
+
+In order to compare the effect of the temperature treatments and
+population of origin on the growth rate, we created a boxplot showing
+the growth rate as a function of both temperature treatments and both
+populations of origin. To determine whether the effects were
+statistically significant, we ran an ANOVA to calculate the difference
+between the means of each category. I do think the approach is editable
+and reproducible - what's currently lacking in the workflow would be a
+Readme to explain the full process.
+
+```\{EditDataframe.R\}
+
+\#\#Import data
+
+temp.df \textless- read.csv(``data/tempExperiment-raw.csv'', header = T)
+temp.df
+
+head(temp.df)
+
+print(temp.df)
+
+\#separate temperature treatment from population using strsplit a
+\textless- strsplit(as.character(temp.df\(temp), split = '-')
+#use unlist and matrix functions to rearranging the output from strsplit
+newvar <- matrix(unlist(a), ncol = 2, byrow = TRUE)
+head(newvar)
+#make a new dataframe with just temp and a new column for pop
+df.t2 <- temp.df #set the new dataframe to the original so we can fix it
+df.t2\)temp \textless- newvar{[},1{]} df.t2\$pop \textless-
+newvar{[},2{]} head(df.t2)
+
+\#use sub to give temp only numeric values and pop only levels pop 1 and
+pop 2, watch the space at the end of population
+df.t2\(temp <- sub('ten', '10', df.t2\)temp)
+df.t2\(temp <- sub('twenty', '20', df.t2\)temp)
+df.t2\(pop <- sub('population ', 'pop', df.t2\)pop) str(df.t2) \#Make
+sure all objects are correct flavor using factor() or as.numeric
+df.t2\(temp <- factor(df.t2\)temp) df.t2\(pop <- factor(df.t2\)pop)
+str(df.t2)
+
+\#Export a new edited csv write.csv(df.t2,
+`data/tempExperiment\_v2.csv')
+
+\begin{verbatim}
+
+
+
+```{Analysis.R}
+
+#start up from last step in EditDataframe.R, which was to export a CSV of our cleaned up data. 
+#Clear the environment
+rm(list=ls(all=TRUE))
+#Import the cleaned data as a new df
+df.t <- read.csv('data/tempExperiment_v2.csv')
+#Get an overview
+str(df.t)
+
+#R thinks temp is a nubmer but really it's a low or high temp category, so change temp to a factor
+df.t$temp <- factor(df.t$temp)
+
+##want to analyze how temperature treatment, population of origin, and size affect growth rate
+
+
+#Plot the data - boxplot of variable growth rate as a function of (~) temp and pop. + tells it to combine temp and pop to create 4 distinct groups (ex. for df$A + df$b then it does A&C, B&C, A&D, B&D)
+boxplot(df.t$growthRate~df.t$temp+df.t$pop)
+
+#add axis labels
+
+boxplot(df.t$growthRate~df.t$temp+df.t$pop,
+        names = c('10', '20', '10', '20'), #temperature label
+        at = c(1,2,4,5), #space out boxes according to population - I don't get this
+        ylab = 'Growth rate mm/day',
+        xlab = ''
+)
+
+
+#use mtext to add text in the margin - not an axis label b/c you want to space it with the boxplot. idk how these parameters change it
+
+mtext('Pop 1', side = 1, at = 1.5, line = 3)
+mtext('Pop 2', side = 1, at = 4.5, line = 3)
+
+#Now save it to PDF in results folder
+
+pdf('results/MyBoxplot.pdf', width = 5, height = 5)
+##Use code from above
+boxplot(df.t$growthRate~df.t$temp+df.t$pop,
+        names = c('10', '20', '10', '20'), #temperature label
+        at = c(1,2,4,5), #space out boxes according to population - I don't get this
+        ylab = 'Growth rate mm/day',
+        xlab = ''
+)
+
+
+#use mtext to add text in the margin - not an axis label b/c you want to space it with the boxplot. idk how these parameters change it
+
+mtext('Pop 1', side = 1, at = 1.5, line = 3)
+mtext('Pop 2', side = 1, at = 4.5, line = 3)
+
+dev.off()
+
+##Now find out if effect of pop or effect of temp is significant in analysis. Use ANOVA. 
+# The '*' symbol is for multiplication and means we want to evaluate an interaction, in this cas evaluate growth rate as a function of the interaction between temp & pop
+
+m1 <- aov(df.t$growthRate ~ df.t$temp * df.t$pop)
+m1.summary <- summary(m1)
+m1.summary
+
+##save the summary table as an R object so you can call it later
+saveRDS(m1.summary, 'results/m1.summary.rds')
+\end{verbatim}
+
+```\{driver.R\} \#\#Run to call the scripts written during analysis
+
+source(`src/EditDataframe.R')
+
+source(`src/Analysis.R')
+
+```
+
+Note that the \texttt{echo\ =\ FALSE} parameter was added to the code
+chunk to prevent printing of the R code that generated the plot.
+
+\end{document}
