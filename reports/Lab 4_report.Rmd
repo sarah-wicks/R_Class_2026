@@ -1,0 +1,94 @@
+---
+title: "Lab 4_Report"
+author: "Sarah Wicks"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Sarah Wicks
+
+**BIO 781 - R Stats & Modeling**
+
+2026-09-21
+
+**Lab 4 - For Loops, Functions, and Bootstrapping in R**
+
+```{r Code block for Lab 4, include=TRUE, results='hide'}
+
+#create a set of 25 values in the normal distribution
+x <- rnorm(25)
+hist(x, freq = FALSE, ylim = c(0,2), xlim = c(-4,4), main = "25 observations")
+
+#calculate the mean of that distribution 1000 times
+mean.x <- replicate(1000, mean(rnorm(25)))
+hist(mean.x, add = TRUE, col = "blue", freq = F)
+
+#calculate the 95% interval of the data
+sd(x)
+(mean(x))+(1.96*(sd(x)))
+(mean(x))-(1.96*(sd(x)))
+
+
+#Calculate the 95% confidence interval on the mean
+(mean(x))+(1.96*(sd(x)/sqrt(25)))
+(mean(x))-(1.96*(sd(x)/sqrt(25)))
+
+```
+
+**Checkpoint 1: Using the equations above, what is the region where 95%
+of the data points lie, and what is the region where there is a 95%
+chance that the mean of the population exists within it? How do these
+regions differ**
+
+Standard deviation of x when n=25 is 1.1. The mean of x = -0.091. Using
+the calculations given prior:
+
+95% of the data points lie between (-2.254, 2.072)
+
+The region with a 95% chance of containing the mean: (-0.524, 0.341)
+
+These regions differ in that the first uses the standard deviation of
+the whole sample and shows where most of the data should lie if
+re-sampled, whereas the 95% CI on the mean uses the standard error to
+calculate the range in which we can expect to find the mean of the
+population.
+
+**Checkpoint 2: How do these regions compare to the example in which we
+drew 1000 samples from the distribution?**
+
+95% Intervals of the data: (-1.928, 1.830)
+
+95% CI on the mean: (-0.108, 0.0108)
+
+The 95% intervals of the data are relatively similar, the 1000
+observation example's window is slightly smaller. The 95% CI on the mean
+of the sample with 1000 observations is much smaller, reflecting the
+larger sample size's impact on the "trustworthiness" of the sample (as
+indicated by the lower standard error in this sample).
+
+**Checkpoint 3: How do we interpret this statistical test given that our
+residuals are non-normal (and so the test isn’t valid)?**
+
+Because we know that the residuals are not normally distributed, the
+p-values and confidence intervals are not trustworthy to determine
+significance. Different tests would need to be used to determine the
+relationship's significance.
+
+**Checkpoint 4: What does the bootstrap analysis suggest about our data?
+What if we had done more bootstraps? Why is looking at the standard
+error useless in a bootstrap?**
+
+The bootstrap analysis suggests that the true nature of the slope
+(relationship between growth rate and temp) is normally distributed, but
+the sample size is too small to determine the distribution without
+re-sampling. If we had done more bootstraps, it might show an even
+stronger adherence to a normal distribution. Standard error in a
+bootstrap isn't useful because it assumes a normal distribution, which
+the underlying data for this bootstrap don't have.
